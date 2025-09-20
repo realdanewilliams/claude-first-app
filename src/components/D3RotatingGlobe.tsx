@@ -6,6 +6,7 @@ import { select } from 'd3-selection';
 import { drag } from 'd3-drag';
 import { zoom } from 'd3-zoom';
 import { interval } from 'd3-timer';
+import 'd3-transition';
 import * as topojson from 'topojson-client';
 import { Country, Guess, GameState } from '@/lib/types';
 
@@ -73,9 +74,10 @@ export function D3RotatingGlobe({ guesses, currentCountry, gameState }: D3Rotati
 
     const initialScale = projection.scale();
     const path = geoPath().projection(projection);
+    const pathGenerator = path as any;
 
     // Create sphere (ocean)
-    const sphere = { type: 'Sphere' };
+    const sphere = { type: 'Sphere' } as any;
 
     // Convert TopoJSON to GeoJSON
     const land = topojson.feature(worldData, worldData.objects.land);
@@ -89,7 +91,7 @@ export function D3RotatingGlobe({ guesses, currentCountry, gameState }: D3Rotati
       .append('path')
       .datum(sphere)
       .attr('class', 'sphere')
-      .attr('d', path)
+      .attr('d', pathGenerator)
       .attr('fill', '#4f90e3')
       .attr('stroke', 'none');
 
@@ -99,7 +101,7 @@ export function D3RotatingGlobe({ guesses, currentCountry, gameState }: D3Rotati
       .append('path')
       .datum(graticule)
       .attr('class', 'graticule')
-      .attr('d', path)
+      .attr('d', pathGenerator)
       .attr('fill', 'none')
       .attr('stroke', '#ffffff')
       .attr('stroke-width', 0.5)
@@ -110,7 +112,7 @@ export function D3RotatingGlobe({ guesses, currentCountry, gameState }: D3Rotati
       .append('path')
       .datum(land)
       .attr('class', 'land')
-      .attr('d', path)
+      .attr('d', pathGenerator)
       .attr('fill', '#2d5015')
       .attr('stroke', '#1a3009')
       .attr('stroke-width', 0.5);
@@ -126,7 +128,7 @@ export function D3RotatingGlobe({ guesses, currentCountry, gameState }: D3Rotati
       .append('path')
       .datum(countryBorders)
       .attr('class', 'country-borders')
-      .attr('d', path)
+      .attr('d', pathGenerator)
       .attr('fill', 'none')
       .attr('stroke', '#3a5f1f')
       .attr('stroke-width', 0.5)
@@ -148,14 +150,11 @@ export function D3RotatingGlobe({ guesses, currentCountry, gameState }: D3Rotati
       // Add circles for guess markers
       markerEnter
         .append('circle')
-        .attr('r', 0)
+        .attr('r', 8)
         .attr('fill', (d: Guess) => getColorByDistance(d.distance))
         .attr('stroke', '#ffffff')
         .attr('stroke-width', 2)
-        .attr('opacity', 0.9)
-        .transition()
-        .duration(500)
-        .attr('r', 8);
+        .attr('opacity', 0.9);
 
       // Add text labels (numbers for incorrect, star for correct)
       markerEnter
@@ -168,22 +167,20 @@ export function D3RotatingGlobe({ guesses, currentCountry, gameState }: D3Rotati
         .attr('stroke', '#000000')
         .attr('stroke-width', 0.5)
         .text((d: Guess, i: number) => d.isCorrect ? '★' : (i + 1).toString())
-        .attr('opacity', 0)
-        .transition()
-        .duration(500)
         .attr('opacity', 1);
 
       // Update all markers
-      const allMarkers = markerEnter.merge(markers);
+      const allMarkers = markerEnter.merge(markers as any);
 
       allMarkers.each(function(d: Guess) {
         const coords = COUNTRY_COORDS.get(d.country);
         if (coords) {
-          const [x, y] = projection(coords) || [0, 0];
+          const [x, y] = projection(coords as [number, number]) || [0, 0];
           select(this).attr('transform', `translate(${x},${y})`);
 
           // Hide markers on the back of the globe
-          const distance = geoDistance(coords, projection.invert([width / 2, height / 2]) || [0, 0]);
+          const centerPoint = projection.invert!([width / 2, height / 2]) || [0, 0];
+          const distance = geoDistance(coords as [number, number], centerPoint as [number, number]);
           const visible = distance < Math.PI / 2;
           select(this).style('display', visible ? 'block' : 'none');
         }
@@ -203,7 +200,7 @@ export function D3RotatingGlobe({ guesses, currentCountry, gameState }: D3Rotati
         projection.rotate([currentRotation[0] + rotationSpeed, currentRotation[1], currentRotation[2]]);
 
         // Update all paths and markers
-        globe.selectAll('path').attr('d', path);
+        globe.selectAll('path').attr('d', pathGenerator);
         updateMarkers();
       }
     }
@@ -228,7 +225,7 @@ export function D3RotatingGlobe({ guesses, currentCountry, gameState }: D3Rotati
           ]);
 
           // Update all paths and markers
-          globe.selectAll('path').attr('d', path);
+          globe.selectAll('path').attr('d', pathGenerator);
           updateMarkers();
         }
       })
@@ -250,7 +247,7 @@ export function D3RotatingGlobe({ guesses, currentCountry, gameState }: D3Rotati
         projection.scale(newScale);
 
         // Update all paths and markers
-        globe.selectAll('path').attr('d', path);
+        globe.selectAll('path').attr('d', pathGenerator);
         updateMarkers();
       });
 

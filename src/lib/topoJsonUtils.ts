@@ -27,7 +27,7 @@ export function generateCountryPaths(topology: any): Map<string, { path: string;
 
   const pathGenerator = geoPath().projection(projection);
 
-  countries.features.forEach((country: any) => {
+  (countries as any).features.forEach((country: any) => {
     const path = pathGenerator(country);
     if (path) {
       const properties = country.properties;
@@ -49,7 +49,7 @@ export function generateCountryPaths(topology: any): Map<string, { path: string;
 export function getCountryCenter(topology: any, countryId: string): { latitude: number; longitude: number } | null {
   const countries = feature(topology, topology.objects.countries);
 
-  const country = countries.features.find((f: any) => {
+  const country = (countries as any).features.find((f: any) => {
     const props = f.properties;
     return props.ISO_A2 === countryId ||
            props.id === countryId ||
