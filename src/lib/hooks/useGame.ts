@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Country, Guess, GameState } from '../types';
-import { getRandomCountry, findCountryByName } from '../../data/countries';
+import { getPopularCountries, findWorldCountryByName, getRandomPopularCountry } from '../worldCountries';
 import { calculateDistance, calculateDirection } from '../utils';
 
 interface UseGameReturn {
@@ -15,14 +15,14 @@ interface UseGameReturn {
 const MAX_GUESSES = 5;
 
 export function useGame(): UseGameReturn {
-  const [currentCountry, setCurrentCountry] = useState<Country | null>(() => getRandomCountry());
+  const [currentCountry, setCurrentCountry] = useState<Country | null>(() => getRandomPopularCountry());
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [gameState, setGameState] = useState<GameState>('playing');
 
   const makeGuess = useCallback((countryName: string) => {
     if (gameState !== 'playing' || !currentCountry) return;
 
-    const guessedCountry = findCountryByName(countryName);
+    const guessedCountry = findWorldCountryByName(countryName);
     if (!guessedCountry) return;
 
     const isCorrect = guessedCountry.name === currentCountry.name;
@@ -57,7 +57,8 @@ export function useGame(): UseGameReturn {
   }, [currentCountry, guesses, gameState]);
 
   const resetGame = useCallback(() => {
-    setCurrentCountry(getRandomCountry());
+    const newCountry = getRandomPopularCountry();
+    setCurrentCountry(newCountry);
     setGuesses([]);
     setGameState('playing');
   }, []);

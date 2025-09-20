@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { countries } from '@/data/countries';
+import { getAllCountries } from '@/lib/worldCountries';
 
 interface CountrySearchProps {
   onGuess: (countryName: string) => void;
@@ -12,14 +12,15 @@ export function CountrySearch({ onGuess, disabled = false }: CountrySearchProps)
 
   const handleInputChange = (value: string) => {
     setInput(value);
-    
+
     if (value.length > 0) {
-      const filtered = countries
-        .filter(country => 
+      const allCountries = getAllCountries();
+      const filtered = allCountries
+        .filter(country =>
           country.name.toLowerCase().includes(value.toLowerCase())
         )
         .map(country => country.name)
-        .slice(0, 5);
+        .slice(0, 8); // Show more suggestions since we have more countries
       setSuggestions(filtered);
     } else {
       setSuggestions([]);
@@ -37,7 +38,8 @@ export function CountrySearch({ onGuess, disabled = false }: CountrySearchProps)
     if (e.key === 'Enter' && input.trim()) {
       e.preventDefault();
       // Find exact match or first suggestion
-      const exactMatch = countries.find(
+      const allCountries = getAllCountries();
+      const exactMatch = allCountries.find(
         country => country.name.toLowerCase() === input.toLowerCase()
       );
       const countryToGuess = exactMatch?.name || suggestions[0];

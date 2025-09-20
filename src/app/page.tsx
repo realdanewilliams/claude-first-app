@@ -2,10 +2,10 @@
 
 import React from 'react';
 import { useGame } from '@/lib/hooks/useGame';
-import { CountryOutline } from '@/components/CountryOutline';
+import { RealCountryOutline } from '@/components/RealCountryOutline';
 import { CountrySearch } from '@/components/CountrySearch';
 import { GuessHistory } from '@/components/GuessHistory';
-import { Globe } from '@/components/Globe';
+import { D3RotatingGlobe } from '@/components/D3RotatingGlobe';
 
 export default function HomePage() {
   const {
@@ -57,8 +57,8 @@ export default function HomePage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Panel - Country Outline and Input */}
           <div className="flex flex-col items-center space-y-6">
-            <CountryOutline country={currentCountry} />
-            
+            <RealCountryOutline country={currentCountry} />
+
             <div className="w-full max-w-md">
               <CountrySearch
                 onGuess={makeGuess}
@@ -79,9 +79,9 @@ export default function HomePage() {
             )}
           </div>
 
-          {/* Right Panel - Globe */}
-          <div className="flex flex-col">
-            <Globe
+          {/* Right Panel - D3.js Rotating Globe */}
+          <div className="flex flex-col h-96 lg:h-full">
+            <D3RotatingGlobe
               guesses={guesses}
               currentCountry={currentCountry}
               gameState={gameState}
