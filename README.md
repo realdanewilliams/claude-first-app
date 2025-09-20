@@ -2,7 +2,7 @@
 
 A modern geography game where players identify countries from authentic outlines. Features real country shapes from mapsicon repository and an interactive 3D Earth globe powered by D3.js.
 
-🌍 **[Live Demo](your-vercel-url-here)** - Try the game now!
+🌍 **[Live Demo](https://global-country-guesser.vercel.app/)** - Try the game now!
 
 ## Features
 
